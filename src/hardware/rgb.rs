@@ -1,5 +1,6 @@
 /// RGB LED controller for WS2812 LEDs via SPI
 use anyhow::{Context, Result};
+use embedded_hal_compat::eh0_2::spi::Spi as SpiCompat;
 use palette::{FromColor, Hsv, Srgb};
 use rppal::spi::{Bus, Mode, SlaveSelect, Spi};
 use serde_json::Value;
@@ -13,7 +14,7 @@ const DEFAULT_LED_COUNT: usize = 4;
 const DEFAULT_BRIGHTNESS: u8 = 50;
 
 pub struct RgbController {
-    ws2812: Ws2812<Spi>,
+    ws2812: Ws2812<SpiCompat<Spi>>,
     led_count: usize,
     brightness: u8,
     color: RGB8,
@@ -56,8 +57,11 @@ impl RgbController {
         // WS2812 requires 6.4 MHz SPI clock for proper timing
         let spi = Spi::new(Bus::Spi0, SlaveSelect::Ss0, 6_400_000, Mode::Mode0)
             .context("Failed to initialize SPI for RGB LEDs")?;
+        
+        // Wrap with compatibility layer to convert embedded-hal 1.0 -> 0.2
+        let spi_compat = SpiCompat::new(spi);
 
-        let ws2812 = Ws2812::new(spi);
+        let ws2812 = Ws2812::new(spi_compat);
 
         // Parse configuration
         let system = &config["system"];

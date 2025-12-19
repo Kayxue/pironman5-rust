@@ -23,8 +23,9 @@ chrono = "0.4"
 
 # Hardware control dependencies (Linux/ARM only)
 [target.'cfg(target_os = "linux")'.dependencies]
-rppal = "0.17"                    # Raspberry Pi GPIO, PWM, SPI, I2C (0.17 uses embedded-hal 0.2)
-embedded-hal = "0.2"              # Hardware abstraction layer
+rppal = "0.18"                    # Raspberry Pi GPIO, PWM, SPI, I2C
+embedded-hal = "0.2"              # Hardware abstraction layer (needed by drivers)
+embedded-hal-compat = "0.5"      # Compatibility layer between embedded-hal 0.2 and 1.0
 palette = "0.7"                   # Color manipulation
 ssd1306 = "0.7"                   # OLED display driver (SSD1306) compatible with embedded-hal 0.2
 embedded-graphics = "0.7"         # Graphics primitives for OLED
