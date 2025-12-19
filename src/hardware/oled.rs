@@ -28,7 +28,7 @@ impl OledController {
         
         // Set I2C slave address for SSD1306
         i2c.set_slave_address(I2C_ADDRESS)
-            .context("Failed to set I2C slave address")?;
+            .context(format!("Failed to set I2C slave address to 0x{:02X}", I2C_ADDRESS))?;
 
         // Create display interface
         let interface = I2CDisplayInterface::new(i2c);
@@ -64,7 +64,7 @@ impl OledController {
     pub fn update(&mut self, status: &SystemStatus) -> Result<()> {
         if !self.enabled {
             self.display.clear();
-            self.display.flush().map_err(|_| anyhow::anyhow!("Failed to flush OLED display"))?;
+            self.display.flush().map_err(|e| anyhow::anyhow!("Failed to flush OLED display (disabled): {:?}", e))?;
             return Ok(());
         }
 
@@ -116,7 +116,7 @@ impl OledController {
             .unwrap();
 
         // Flush to display
-        self.display.flush().map_err(|_| anyhow::anyhow!("Failed to update OLED display"))?;
+        self.display.flush().map_err(|e| anyhow::anyhow!("Failed to update OLED display: {:?}", e))?;
 
         Ok(())
     }

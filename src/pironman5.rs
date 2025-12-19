@@ -181,32 +181,43 @@ impl Pironman5 {
         
         // Main loop - monitor system and update hardware
         let mut loop_counter = 0;
+        println!("Entering main update loop...");
+        
         while self.running.load(Ordering::SeqCst) {
             // Update system status every second
             if let Some(monitor) = &mut self.system_monitor {
-                if let Ok(status) = monitor.get_status() {
-                    // Update hardware with current status
-                    if let Some(hardware) = &mut self.hardware {
-                        if let Err(e) = hardware.update(&status) {
-                            eprintln!("Hardware update error: {}", e);
-                            // Log to stderr so it appears in systemd logs
-                            log::error!("Hardware update failed: {}", e);
+                match monitor.get_status() {
+                    Ok(status) => {
+                        // Update hardware with current status
+                        if let Some(hardware) = &mut self.hardware {
+                            if let Err(e) = hardware.update(&status) {
+                                eprintln!("Hardware update error: {}", e);
+                                log::error!("Hardware update failed: {}", e);
+                            }
+                        }
+
+                        // Log status every 10 seconds
+                        if loop_counter % 10 == 0 {
+                            println!("CPU: {:.1}% | MEM: {:.1}% | TEMP: {:.1}°C",
+                                status.cpu_usage, status.memory_usage, status.cpu_temperature);
+                            log::info!("Status update - CPU: {:.1}%, MEM: {:.1}%, TEMP: {:.1}°C",
+                                status.cpu_usage, status.memory_usage, status.cpu_temperature);
                         }
                     }
-
-                    // Log status every 10 seconds
-                    if loop_counter % 10 == 0 {
-                        println!("CPU: {:.1}% | MEM: {:.1}% | TEMP: {:.1}°C",
-                            status.cpu_usage, status.memory_usage, status.cpu_temperature);
-                        log::info!("Status update - CPU: {:.1}%, MEM: {:.1}%, TEMP: {:.1}°C",
-                            status.cpu_usage, status.memory_usage, status.cpu_temperature);
+                    Err(e) => {
+                        eprintln!("Failed to get system status: {}", e);
+                        log::error!("System status read failed: {}", e);
                     }
                 }
+            } else {
+                eprintln!("Warning: System monitor not available");
             }
 
             loop_counter += 1;
             thread::sleep(Duration::from_secs(1));
         }
+        
+        println!("Exiting main update loop...");
 
         self.stop()?;
         Ok(())

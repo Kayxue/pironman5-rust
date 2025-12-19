@@ -148,16 +148,25 @@ impl HardwareManager {
     pub fn shutdown(&mut self) -> Result<()> {
         println!("Shutting down hardware...");
         
+        // Shutdown RGB - don't fail if it errors
         if let Some(rgb) = &mut self.rgb {
-            rgb.shutdown()?;
+            if let Err(e) = rgb.shutdown() {
+                eprintln!("Warning: RGB shutdown error: {}", e);
+            }
         }
         
+        // Shutdown OLED - don't fail if it errors
         if let Some(oled) = &mut self.oled {
-            oled.shutdown()?;
+            if let Err(e) = oled.shutdown() {
+                eprintln!("Warning: OLED shutdown error: {}", e);
+            }
         }
         
+        // Shutdown fan - don't fail if it errors
         if let Some(fan) = &mut self.fan {
-            fan.shutdown()?;
+            if let Err(e) = fan.shutdown() {
+                eprintln!("Warning: Fan shutdown error: {}", e);
+            }
         }
         
         println!("Hardware shutdown complete");

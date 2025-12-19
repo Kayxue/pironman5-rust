@@ -107,8 +107,9 @@ impl RgbController {
         if !self.enabled {
             // Turn off all LEDs
             let black = vec![RGB8::new(0, 0, 0); self.led_count];
-            self.ws2812.write(black.iter().cloned())
-                .context("Failed to write to RGB LEDs")?;
+            if let Err(e) = self.ws2812.write(black.iter().cloned()) {
+                return Err(anyhow::anyhow!("Failed to write to RGB LEDs (disabled): {}", e));
+            }
             return Ok(());
         }
 
@@ -123,7 +124,7 @@ impl RgbController {
 
         // Write to LEDs
         self.ws2812.write(colors.iter().cloned())
-            .context("Failed to write to RGB LEDs")?;
+            .map_err(|e| anyhow::anyhow!("Failed to write to RGB LEDs: {:?}", e))?;
 
         Ok(())
     }
@@ -205,10 +206,12 @@ impl RgbController {
     }
 
     pub fn shutdown(&mut self) -> Result<()> {
-        // Turn off all LEDs
+        // Turn off all LEDs - ignore errors during shutdown
         let black = vec![RGB8::new(0, 0, 0); self.led_count];
-        self.ws2812.write(black.iter().cloned())
-            .context("Failed to turn off RGB LEDs")?;
+        if let Err(e) = self.ws2812.write(black.iter().cloned()) {
+            eprintln!("Warning: Failed to turn off RGB LEDs during shutdown: {}", e);
+            // Don't fail shutdown if RGB write fails
+        }
         Ok(())
     }
 }
