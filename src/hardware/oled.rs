@@ -43,9 +43,9 @@ impl OledController {
         let mut display = Ssd1306::new(interface, DisplaySize128x64, rotation)
             .into_buffered_graphics_mode();
         
-        display.init().context("Failed to initialize OLED display")?;
-        display.clear(BinaryColor::Off).unwrap();
-        display.flush().context("Failed to flush OLED display")?;
+        display.init().map_err(|_| anyhow::anyhow!("Failed to initialize OLED display"))?;
+        display.clear();
+        display.flush().map_err(|_| anyhow::anyhow!("Failed to flush OLED display"))?;
 
         Ok(OledController {
             display,
@@ -56,13 +56,13 @@ impl OledController {
 
     pub fn update(&mut self, status: &SystemStatus) -> Result<()> {
         if !self.enabled {
-            self.display.clear(BinaryColor::Off).unwrap();
-            self.display.flush()?;
+            self.display.clear();
+            self.display.flush().map_err(|_| anyhow::anyhow!("Failed to flush OLED display"))?;
             return Ok(());
         }
 
         // Clear display
-        self.display.clear(BinaryColor::Off).unwrap();
+        self.display.clear();
 
         // Text style
         let text_style = MonoTextStyle::new(&FONT_6X10, BinaryColor::On);
@@ -109,7 +109,7 @@ impl OledController {
             .unwrap();
 
         // Flush to display
-        self.display.flush().context("Failed to update OLED display")?;
+        self.display.flush().map_err(|_| anyhow::anyhow!("Failed to update OLED display"))?;
 
         Ok(())
     }
@@ -255,20 +255,20 @@ impl OledController {
     }
 
     pub fn show_message(&mut self, message: &str) -> Result<()> {
-        self.display.clear(BinaryColor::Off).unwrap();
+        self.display.clear();
         
         let text_style = MonoTextStyle::new(&FONT_6X10, BinaryColor::On);
         Text::new(message, Point::new(0, 10), text_style)
             .draw(&mut self.display)
             .unwrap();
         
-        self.display.flush()?;
+        self.display.flush().map_err(|_| anyhow::anyhow!("Failed to flush OLED display"))?;
         Ok(())
     }
 
     pub fn shutdown(&mut self) -> Result<()> {
-        self.display.clear(BinaryColor::Off).unwrap();
-        self.display.flush()?;
+        self.display.clear();
+        self.display.flush().map_err(|_| anyhow::anyhow!("Failed to flush OLED display"))?;
         Ok(())
     }
 }
