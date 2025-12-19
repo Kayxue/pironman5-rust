@@ -111,19 +111,35 @@ impl HardwareManager {
     pub fn update(&mut self, status: &SystemStatus) -> Result<()> {
         // Update RGB LEDs
         if let Some(rgb) = &mut self.rgb {
-            rgb.update(status)?;
+            if let Err(e) = rgb.update(status) {
+                eprintln!("RGB update error: {}", e);
+                return Err(anyhow::anyhow!("RGB update failed: {}", e));
+            }
         }
 
         // Update OLED display
         if let Some(oled) = &mut self.oled {
-            oled.update(status)?;
+            if let Err(e) = oled.update(status) {
+                eprintln!("OLED update error: {}", e);
+                return Err(anyhow::anyhow!("OLED update failed: {}", e));
+            }
         }
 
         // Update fan speed based on temperature
         if let Some(fan) = &mut self.fan {
             if let Some(temp_monitor) = &self.temperature {
-                let cpu_temp = temp_monitor.read_cpu_temperature()?;
-                fan.set_speed_for_temperature(cpu_temp)?;
+                match temp_monitor.read_cpu_temperature() {
+                    Ok(cpu_temp) => {
+                        if let Err(e) = fan.set_speed_for_temperature(cpu_temp) {
+                            eprintln!("Fan update error: {}", e);
+                            return Err(anyhow::anyhow!("Fan update failed: {}", e));
+                        }
+                    }
+                    Err(e) => {
+                        eprintln!("Temperature read error: {}", e);
+                        return Err(anyhow::anyhow!("Temperature read failed: {}", e));
+                    }
+                }
             }
         }
 
