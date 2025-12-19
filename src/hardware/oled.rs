@@ -9,8 +9,7 @@ use embedded_graphics::{
 };
 use rppal::i2c::I2c;
 use serde_json::Value;
-use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
-use ssd1306::mode::BufferedGraphicsMode;
+use ssd1306::{mode::BufferedGraphicsMode, prelude::*, I2CDisplayInterface, Ssd1306};
 
 use super::SystemStatus;
 
