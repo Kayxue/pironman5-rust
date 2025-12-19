@@ -4,12 +4,13 @@ use embedded_graphics::{
     mono_font::{ascii::FONT_6X10, MonoTextStyle},
     pixelcolor::BinaryColor,
     prelude::*,
-    primitives::{Circle, Line, PrimitiveStyle, Rectangle, Triangle},
+    primitives::{Circle, Line, PrimitiveStyle, Rectangle},
     text::Text,
 };
 use rppal::i2c::I2c;
 use serde_json::Value;
 use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
+use ssd1306::mode::BufferedGraphicsMode;
 
 use super::SystemStatus;
 

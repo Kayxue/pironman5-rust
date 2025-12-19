@@ -4,7 +4,7 @@ use palette::{FromColor, Hsv, Srgb};
 use rppal::spi::{Bus, Mode, SlaveSelect, Spi};
 use serde_json::Value;
 use smart_leds::RGB8;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use ws2812_spi::Ws2812;
 
 use super::SystemStatus;
@@ -135,7 +135,6 @@ impl RgbController {
         let speed_factor = self.speed as f32 / 50.0;
         let phase = (elapsed * speed_factor).sin() * 0.5 + 0.5; // 0.0 to 1.0
         
-        let brightness = (self.brightness as f32 * phase) as u8;
         let scaled = RGB8::new(
             (self.color.r as f32 * phase) as u8,
             (self.color.g as f32 * phase) as u8,
