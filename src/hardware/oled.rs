@@ -24,7 +24,11 @@ pub struct OledController {
 impl OledController {
     pub fn new(config: &Value) -> Result<Self> {
         // Initialize I2C
-        let i2c = I2c::new().context("Failed to initialize I2C")?;
+        let mut i2c = I2c::new().context("Failed to initialize I2C")?;
+        
+        // Set I2C slave address for SSD1306
+        i2c.set_slave_address(I2C_ADDRESS)
+            .context("Failed to set I2C slave address")?;
 
         // Create display interface
         let interface = I2CDisplayInterface::new(i2c);
@@ -43,9 +47,12 @@ impl OledController {
         let mut display = Ssd1306::new(interface, DisplaySize128x64, rotation)
             .into_buffered_graphics_mode();
         
-        display.init().map_err(|_| anyhow::anyhow!("Failed to initialize OLED display"))?;
+        display.init().map_err(|e| anyhow::anyhow!("Failed to initialize OLED display: {:?}", e))?;
         display.clear();
-        display.flush().map_err(|_| anyhow::anyhow!("Failed to flush OLED display"))?;
+        display.flush().map_err(|e| anyhow::anyhow!("Failed to flush OLED display: {:?}", e))?;
+        
+        // Small delay to ensure display is ready
+        std::thread::sleep(std::time::Duration::from_millis(100));
 
         Ok(OledController {
             display,

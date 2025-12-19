@@ -113,7 +113,7 @@ impl HardwareManager {
         if let Some(rgb) = &mut self.rgb {
             if let Err(e) = rgb.update(status) {
                 eprintln!("RGB update error: {}", e);
-                return Err(anyhow::anyhow!("RGB update failed: {}", e));
+                // Don't fail completely, continue with other hardware
             }
         }
 
@@ -121,7 +121,7 @@ impl HardwareManager {
         if let Some(oled) = &mut self.oled {
             if let Err(e) = oled.update(status) {
                 eprintln!("OLED update error: {}", e);
-                return Err(anyhow::anyhow!("OLED update failed: {}", e));
+                // Don't fail completely, continue with other hardware
             }
         }
 
@@ -132,12 +132,10 @@ impl HardwareManager {
                     Ok(cpu_temp) => {
                         if let Err(e) = fan.set_speed_for_temperature(cpu_temp) {
                             eprintln!("Fan update error: {}", e);
-                            return Err(anyhow::anyhow!("Fan update failed: {}", e));
                         }
                     }
                     Err(e) => {
                         eprintln!("Temperature read error: {}", e);
-                        return Err(anyhow::anyhow!("Temperature read failed: {}", e));
                     }
                 }
             }

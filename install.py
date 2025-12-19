@@ -398,21 +398,19 @@ def install_systemd_service():
     
     service_content = """[Unit]
 Description=Pironman5 Hardware Control Service
-After=network.target sys-devices-platform-soc
-Wants=sys-devices-platform-soc
+After=network.target
 
 [Service]
 Type=simple
 User=root
-ExecStartPre=/bin/sleep 3
 ExecStart=/usr/local/bin/pironman5 start
 ExecStop=/usr/local/bin/pironman5 stop
 Restart=on-failure
 RestartSec=5s
 
 # Security settings
-NoNewPrivileges=false
-PrivateTmp=false
+NoNewPrivileges=true
+PrivateTmp=true
 
 # Logging
 StandardOutput=journal

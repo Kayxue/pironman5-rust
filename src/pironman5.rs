@@ -189,12 +189,8 @@ impl Pironman5 {
                     if let Some(hardware) = &mut self.hardware {
                         if let Err(e) = hardware.update(&status) {
                             eprintln!("Hardware update error: {}", e);
-                            // Also log to stderr/stdout so it appears in systemd logs
-                            println!("ERROR: Hardware update failed: {}", e);
-                        }
-                    } else {
-                        if loop_counter % 10 == 0 {
-                            eprintln!("WARNING: Hardware manager is None - hardware not initialized");
+                            // Log to stderr so it appears in systemd logs
+                            log::error!("Hardware update failed: {}", e);
                         }
                     }
 
@@ -202,15 +198,9 @@ impl Pironman5 {
                     if loop_counter % 10 == 0 {
                         println!("CPU: {:.1}% | MEM: {:.1}% | TEMP: {:.1}°C",
                             status.cpu_usage, status.memory_usage, status.cpu_temperature);
+                        log::info!("Status update - CPU: {:.1}%, MEM: {:.1}%, TEMP: {:.1}°C",
+                            status.cpu_usage, status.memory_usage, status.cpu_temperature);
                     }
-                } else {
-                    if loop_counter % 10 == 0 {
-                        eprintln!("WARNING: Failed to get system status");
-                    }
-                }
-            } else {
-                if loop_counter % 10 == 0 {
-                    eprintln!("WARNING: System monitor is None");
                 }
             }
 

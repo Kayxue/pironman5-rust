@@ -58,6 +58,9 @@ impl RgbController {
             .context("Failed to initialize SPI for RGB LEDs")?;
 
         let ws2812 = Ws2812::new(spi);
+        
+        // Small delay to ensure SPI is ready
+        std::thread::sleep(std::time::Duration::from_millis(50));
 
         // Parse configuration
         let system = &config["system"];
