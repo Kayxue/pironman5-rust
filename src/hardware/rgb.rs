@@ -3,8 +3,7 @@ use anyhow::{Context, Result};
 use palette::{FromColor, Hsv, Srgb};
 use rppal::spi::{Bus, Mode, SlaveSelect, Spi};
 use serde_json::Value;
-use smart_leds::RGB8;
-use smart_leds_trait::SmartLedsWrite;
+use smart_leds::{SmartLedsWrite, RGB8};
 use std::time::Instant;
 use ws2812_spi::Ws2812;
 
