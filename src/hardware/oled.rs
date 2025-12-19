@@ -7,7 +7,6 @@ use embedded_graphics::{
     primitives::{Circle, Line, PrimitiveStyle, Rectangle},
     text::Text,
 };
-use embedded_hal_compat::eh0_2::i2c::I2c as I2cCompat;
 use rppal::i2c::I2c;
 use serde_json::Value;
 use ssd1306::{mode::BufferedGraphicsMode, prelude::*, I2CDisplayInterface, Ssd1306};
@@ -17,11 +16,7 @@ use super::SystemStatus;
 const I2C_ADDRESS: u16 = 0x3C; // Standard SSD1306 I2C address
 
 pub struct OledController {
-    display: Ssd1306<
-        I2CInterface<I2cCompat<I2c>>,
-        DisplaySize128x64,
-        BufferedGraphicsMode<DisplaySize128x64>,
-    >,
+    display: Ssd1306<I2CInterface<I2c>, DisplaySize128x64, BufferedGraphicsMode<DisplaySize128x64>>,
     enabled: bool,
     rotation: DisplayRotation,
 }
@@ -30,12 +25,9 @@ impl OledController {
     pub fn new(config: &Value) -> Result<Self> {
         // Initialize I2C
         let i2c = I2c::new().context("Failed to initialize I2C")?;
-        
-        // Wrap with compatibility layer to convert embedded-hal 1.0 -> 0.2
-        let i2c_compat = I2cCompat::new(i2c);
 
         // Create display interface
-        let interface = I2CDisplayInterface::new(i2c_compat);
+        let interface = I2CDisplayInterface::new(i2c);
         
         // Parse configuration
         let system = &config["system"];
